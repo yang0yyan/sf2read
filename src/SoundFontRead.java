@@ -179,14 +179,15 @@ public class SoundFontRead {
                 Map<String, String> map = new HashMap<>();
                 String name = readString(20);
                 presetNameList.add(name);
-                map.put("achPresetName", name);
-                map.put("wPreset", readUnsignedShort() + "");
-                map.put("wBank", readUnsignedShort() + "");
-                map.put("wPresetBagNdx", readUnsignedShort() + "");
+                map.put("achPresetName", name); // 预设名称
+                map.put("wPreset", readUnsignedShort() + ""); // MIDI预设编号
+                map.put("wBank", readUnsignedShort() + ""); // 适用于此预设的 MIDI库编号
+                map.put("wPresetBagNdx", readUnsignedShort() + ""); // PBAG sub-chunk子块中预设区域列表的索引
                 map.put("dwLibrary", readUnsignedInt() + "");
                 map.put("dwGenre", readUnsignedInt() + "");
                 map.put("dwMorphology", readUnsignedInt() + "");
                 list1.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list1.toString();
         } else if (chunk.id.equals("pbag")) {
@@ -197,9 +198,10 @@ public class SoundFontRead {
             List<Map<String, Integer>> list2 = new ArrayList<>();
             for (int i = 0; i < count; i++) {
                 Map<String, Integer> map = new HashMap<>();
-                map.put("wGenNdx", readUnsignedShort());
-                map.put("wModNdx", readUnsignedShort());
+                map.put("wGenNdx", readUnsignedShort()); // PGEN sub-chunk子块中预设发生器区域列表的索引
+                map.put("wModNdx", readUnsignedShort()); // PMOD sub-chunk子块中其调制器列表的索引
                 list2.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list2.toString();
         } else if (chunk.id.equals("pmod")) {
@@ -210,12 +212,13 @@ public class SoundFontRead {
             List<Map<String, Integer>> list3 = new ArrayList<>();
             for (int i = 0; i < count; i++) {
                 Map<String, Integer> map = new HashMap<>();
-                map.put("sfModSrcOper", readUnsignedShort());
-                map.put("sfModDestOper", readUnsignedShort());
+                map.put("sfModSrcOper", readUnsignedShort()); // 该值表示调制器的数据源
+                map.put("sfModDestOper", readUnsignedShort()); // 指示调制器的终点
                 map.put("modAmount", readUnsignedShort());
                 map.put("sfModAmtSrcOper", readUnsignedShort());
                 map.put("sfModTransOper", readUnsignedShort());
                 list3.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list3.toString();
         } else if (chunk.id.equals("pgen")) {
@@ -229,6 +232,7 @@ public class SoundFontRead {
                 map.put("sfGenOper", readUnsignedShort());
                 map.put("genAmount", readUnsignedShort());
                 list4.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list4.toString();
         } else if (chunk.id.equals("inst")) {
@@ -241,9 +245,10 @@ public class SoundFontRead {
                 Map<String, String> map = new HashMap<>();
                 String name = readString(20);
                 instNameList.add(name);
-                map.put("achInstName", name);
-                map.put("wInstBagNdx", readUnsignedShort() + "");
+                map.put("achInstName", name); // 用ASCII表示的乐器名称
+                map.put("wInstBagNdx", readUnsignedShort() + ""); // IBAG sub-chunk子块中乐器区域列表的索引
                 list5.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list5.toString();
         } else if (chunk.id.equals("ibag")) {
@@ -254,12 +259,13 @@ public class SoundFontRead {
             List<Map<String, Integer>> list6 = new ArrayList<>();
             for (int i = 0; i < count; i++) {
                 Map<String, Integer> map = new HashMap<>();
-                map.put("wInstGenNdx", readUnsignedShort());
-                map.put("wInstModNdx", readUnsignedShort());
+                map.put("wInstGenNdx", readUnsignedShort()); // IGEN sub-chunk子块中乐器区域发生器列表的索引
+                map.put("wInstModNdx", readUnsignedShort()); // IMOD sub-chunk子块中调制器列表的索引
                 list6.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list6.toString();
-        } else if (chunk.id.equals("imod")) {
+        } else if (chunk.id.equals("imod")) { // 列出了音源兼容文件中的所有乐器区调制器
             chunk.describe = "仪表调节器列表";
             if (chunk.size % 10 != 0)
                 System.out.println("imod大小不是10的倍数");
@@ -273,9 +279,10 @@ public class SoundFontRead {
                 map.put("sfModAmtSrcOper", readUnsignedShort());
                 map.put("sfModTransOper", readUnsignedShort());
                 list7.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list7.toString();
-        } else if (chunk.id.equals("igen")) {
+        } else if (chunk.id.equals("igen")) { // ，包含SoundFont兼容文件中每个乐器区域生成器的列表
             chunk.describe = "仪器生成器列表";
             if (chunk.size % 4 != 0)
                 System.out.println("igen大小不是4的倍数");
@@ -286,9 +293,10 @@ public class SoundFontRead {
                 map.put("sfGenOper", readUnsignedShort());
                 map.put("genAmount", readUnsignedShort());
                 list8.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list8.toString();
-        } else if (chunk.id.equals("shdr")) {
+        } else if (chunk.id.equals("shdr")) { // smpl sub-chunk子块中的所有采样和所有引用的ROM采样
             chunk.describe = "采样标题";
             if (chunk.size % 46 != 0)
                 System.out.println("shdr大小不是46的倍数");
@@ -298,9 +306,9 @@ public class SoundFontRead {
                 Map<String, String> map = new HashMap<>();
                 String name = readString(20);
                 instNameList.add(name);
-                map.put("achSampleName", name);
-                map.put("dwStart", readUnsignedInt() + "");
-                map.put("dwEnd", readUnsignedInt() + "");
+                map.put("achSampleName", name); // 用ASCII表示的采样名称
+                map.put("dwStart", readUnsignedInt() + ""); // 采样数据字段开始到该采样的第一个数据点的索引
+                map.put("dwEnd", readUnsignedInt() + ""); // 从采样数据字段的开头到该采样后面46个零值数据点集的第一个
                 map.put("dwStartloop", readUnsignedInt() + "");
                 map.put("dwEndloop", readUnsignedInt() + "");
                 map.put("dwSampleRate", readUnsignedInt() + "");
@@ -310,6 +318,7 @@ public class SoundFontRead {
                 map.put("wSampleLink", readUnsignedShort() + "");
                 map.put("dwSampleRate", readUnsignedShort() + "");
                 list9.add(map);
+                System.out.println(map.toString());
             }
             chunk.data = list9.toString();
         }

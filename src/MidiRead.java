@@ -31,6 +31,10 @@ public class MidiRead {
         }
     }
 
+    public List<Chunk> getChunkList() {
+        return chunkList;
+    }
+
     private void readStream() throws IOException {
         fileLength = mRandomAccessFile.length();
         System.out.println(fileLength);
@@ -53,11 +57,12 @@ public class MidiRead {
             readMTrk(chunk);
         }
 
-        if (chunk.id.equals("MTrk")) {
-            absoluteTime = 0;
-            readMTrk(chunk);
-            index++;
-        }
+//        if (chunk.id.equals("MTrk")) {
+//            absoluteTime = 0;
+//            readMTrk(chunk);
+//            index++;
+//        }
+
         if (fileLength > chunk.size + chunk.index) {
             seek(chunk.size + chunk.index);
             readMIDI();
@@ -92,9 +97,9 @@ public class MidiRead {
 
     private void readMTrk(Chunk chunk) throws IOException {
         MTrkEvent mTrkEvent = readMTrkEvent();
-        System.out.println(mTrkEvent.toString());
         if (mTrkEvent.event == null) return;
         Event event = mTrkEvent.event;
+        chunk.mTrkEventArrayList.add(mTrkEvent);
         if (chunk.size > event.size + event.index - chunk.index) {
             seek(event.size + event.index);
             readMTrk(chunk);
@@ -106,7 +111,6 @@ public class MidiRead {
             }
             System.out.println("读完");
         }
-        chunk.mTrkEventArrayList.add(mTrkEvent);
     }
 
     private int readLen() throws IOException {
@@ -203,9 +207,10 @@ public class MidiRead {
 
     private String upType = "";
 
+    // MIDI event  |  sysex event  |  meta-event
     private Event readEvent2() throws IOException {
         int tag = readUnsignedByte();
-        if (tag == 255) {
+        if (tag == 255) { // 非MIDI事件
             MetaEvent metaEvent = new MetaEvent();
             metaEvent.type = Integer.toHexString(readUnsignedByte()).toUpperCase(Locale.ROOT);
             metaEvent.size = readUnsignedByte();
@@ -229,7 +234,7 @@ public class MidiRead {
                 metaEvent.describe = "音符特定信息";
             }
             return metaEvent;
-        } else if (tag > 127) {
+        } else if (tag > 127) { // MIDI事件
             MidiEvent midiEvent = new MidiEvent();
             midiEvent.num1 = Integer.toHexString(tag).toUpperCase(Locale.ROOT);
             upType = midiEvent.num1;
